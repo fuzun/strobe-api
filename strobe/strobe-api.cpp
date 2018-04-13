@@ -222,15 +222,14 @@ void strobe_api::GenerateDiffBar(char *src, int size, char type)
 			}
 		}
 	}
+	char temp[64]; // FIX HERE
 	if (type == 2)
 	{
-		char temp[64]; // FIX HERE
 		sprintf(temp, "] - %d / 200", diff);
 		strncat(src, temp, strlen(temp));
 	}
 	else
 	{
-		char temp[64]; // FIX HERE
 		sprintf(temp, "] - %d%%", (Neg ? -diff : diff));
 		strncat(src, temp, strlen(temp));
 	}
@@ -434,6 +433,16 @@ void strobe_api::GenerateDebugStatistics(char *src, int size)
 	nNegativeNormal = FrameCounter( NegativeNormalFrame);
 	nNegativeBlack = FrameCounter( NegativeBlackFrame);
 
+	if (!strlen(strobemethod))
+	{
+		snprintf(strobemethod, sizeof(strobemethod), (strobeMethod > 0 ? "%d [NORMAL" : "%d [BLACK"), strobeMethod);
+		for (int k = 1; k <= abs(strobeMethod); ++k)
+		{
+			strcat(strobemethod, (strobeMethod > 0 ? " - BLACK" : " - NORMAL"));
+		}
+		strcat(strobemethod, "]");
+	}
+
 	char strcooldown[64];
 	if (cooldown >= 0.0 && cdTriggered)
 	{
@@ -445,7 +454,10 @@ void strobe_api::GenerateDebugStatistics(char *src, int size)
 	snprintf(src,
 		size,
 		"%.2f FPS\n%.2f eFPS\n"
-		"Elapsed Time: %lld\n"
+		"Strobe Method: %s\n"
+		"Strobe Swap Interval: %d\n"
+		"Strobe Cooldown Delay: %d\n"
+		"Elapsed Time: %.2f\n"
 		"isPhaseInverted = %d\n"
 		"Total Frame Count: %zu\n"
 		"(+) Phase Frame Count: %zu\n"
@@ -459,7 +471,7 @@ void strobe_api::GenerateDebugStatistics(char *src, int size)
 		" |-> Frequency: %.2f Hz\n"
 		" |-> Duty Cycle: %.2f%%\n"
 		" |-> Current Phase Shift: +%.4f msec || -%.4f msec\n"
-		" |-> Period: %.4f msec\n"
+		" |-> Period: %.2f msec\n"
 		"Brightness Reduction:\n"
 		" |-> [LINEAR] Actual Reduction: %.2f%%\n"
 		" |-> [LOG] Realistic Reduction (400 cd/m2 base): %.2f%%\n"
@@ -478,7 +490,10 @@ void strobe_api::GenerateDebugStatistics(char *src, int size)
 		"=====ANALYSIS=====\n",
 		currentFPS(),
 		effectiveFPS(),
-		elapsedTime,
+		strobemethod,
+		swapInterval,
+		cooldownDelay,
+		elapsedTime / 1000.0,
 		isPhaseInverted(),
 		FrameCounter(TotalFrame),
 		FrameCounter(PositiveFrame),
@@ -506,7 +521,7 @@ void strobe_api::GenerateDebugStatistics(char *src, int size)
 		Badness_Reducted(false),
 		Badness_Reducted(true),
 		deviation,
-		strcooldown); // 
+		strcooldown);
 
 	PositiveNormal = FrameCounter(PositiveNormalFrame);
 	PositiveBlack = FrameCounter(PositiveBlackFrame);
@@ -561,6 +576,7 @@ strobe_api::strobe_api()
 		deviation = 0;
 		cdTimer = 0;
 		cdTriggered = 0;
+		strobemethod[0] = 0;
 		frameInfo = (fstate_e)(PHASE_POSITIVE | FRAME_RENDER);
 }
 

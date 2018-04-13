@@ -32,6 +32,10 @@ SOFTWARE.
 
 #define ARRAYSIZE(x) (sizeof(x) / sizeof(x[0]))
 
+#define STROBE_METHOD 2 // 2 : NORMAL - BLACK - BLACK , -1 : BLACK - NORMAL, -3 : BLACK - NORMAL - NORMAL - NORMAL, 3 : NORMAL - BLACK - BLACK - BLACK
+#define STROBE_COOLDOWNDELAY 3 // Waiting time in seconds when frame rate becomes inconsistent
+#define STROBE_SWAPINTERVAL 2 // Swapping phase interval in seconds
+
 double randfrom(double min, double max)
 {
 	double range = (max - min);
@@ -51,22 +55,22 @@ void strobe_core::showNormal(void)
 
 double strobe_core::currentFPS(void)
 {
-	return randfrom(99, 101); // MUST BE IMPLEMENTED!!!
+	return randfrom(99, 101);
 }
 
 int strobe_core::getSTROBE(void)
 {
-	return 2; // 1 : NORMAL - BLACK - NORMAL - BLACK ... , 2 : NORMAL - BLACK - BLACK - NORMAL - BLACK - BLACK ... , -2 : BLACK - BLACK - NORMAL - BLACK - BLACK - NORMAL ...
+	return strobeMethod;
 }
 
 int strobe_core::getSTROBE_COOLDOWN(void)
 {
-	return 2; // x seconds wait if the frame rate is inconsistent
+	return cooldownDelay;
 }
 
 int strobe_core::getSWAPINTERVAL()
 {
-	return 3; // x seconds interval for phase switching
+	return swapInterval;
 }
 
 void strobe_core::strobe()
@@ -82,8 +86,8 @@ void strobe_core::strobe()
 		cdTimer += delta2;
 	if (fCounter - fCounterSnapshot == 1)
 	{
-		delta[fCounter % ARRAYSIZE(delta)] = currentFPS(); //delta2;
-		deviation = StandardDeviation(delta, ARRAYSIZE(delta)); //* 1000;
+		delta[fCounter % ARRAYSIZE(delta)] = currentFPS();
+		deviation = StandardDeviation(delta, ARRAYSIZE(delta));
 	}
 	fCounterSnapshot = fCounter;
 
@@ -147,7 +151,7 @@ void strobe_core::strobe()
 
 	if ((swapInterval) && (strobeInterval % 2)) // Swapping not enabled for even intervals as it is neither necessary nor works as intended
 	{
-		delta1 = currentTime - recentTime;                                                                       // New Currenttime for _delta1 ?
+		delta1 = currentTime - recentTime; // New Currenttime for _delta1 ?
 		if ((delta1 >= (swapInterval * 1000) && (delta1 < (2 * swapInterval * 1000)))) // Basic timer
 		{
 			frameInfo = (fstate_e)(frameInfo | PHASE_INVERTED);
@@ -231,6 +235,10 @@ strobe_core::strobe_core()
 	swapInterval = 0;
 	initialTime = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count(); // !!!
 	active = true;
+
+	strobeMethod = STROBE_METHOD;
+	cooldownDelay = STROBE_COOLDOWNDELAY;
+	swapInterval = STROBE_SWAPINTERVAL;
 }
 
 #endif

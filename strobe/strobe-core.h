@@ -40,7 +40,6 @@ private:
 	int offsetX;
 	double nexttime, lasttime;
 	int strobeInterval;
-	int swapInterval;
 	__int64 initialTime;
 	void showBlack(void);
 	void showNormal(void);

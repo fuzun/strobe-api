@@ -36,6 +36,7 @@ private:
 	double nexttime, lasttime, framerate;
 	size_t mark;
 	size_t PositiveNormal, PositiveBlack, NegativeNormal, NegativeBlack;
+	char strobemethod[128];
 
 protected:
 	
@@ -82,6 +83,10 @@ protected:
 	double ArithmeticMean(double x, double y);
 	double StandardDeviation(const double *data, int n);
 	double Cooldown();
+
+	int strobeMethod;
+	int swapInterval;
+	int cooldownDelay;
 
 	size_t FrameCounter(counterType);
 
