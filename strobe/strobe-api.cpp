@@ -178,22 +178,22 @@ void strobe_api::GenerateDiffBar(char *src, int size, char type)
 			if (type == 2)
 			{
 				if (100 - (_barCounter * 11) <= diff / 2)
-					strncat(src, "=", 5);
+					strncat(src, "=", 1);
 				else
-					strncat(src, "=", 3);
+					strncat(src, "-", 1);
 			}
 			else
 			{
 				if (Neg)
 				{
 					if (100 - (_barCounter * 11) <= diff)
-						strncat(src, "=", 5);
+						strncat(src, "=", 1);
 					else
-						strncat(src, "=", 3);
+						strncat(src, "-", 1);
 				}
 				else
 				{
-					strncat(src, "=", 3);
+					strncat(src, "-", 1);
 				}
 			}
 		}
@@ -202,22 +202,22 @@ void strobe_api::GenerateDiffBar(char *src, int size, char type)
 			if (type == 2)
 			{
 				if (((_barCounter - 11) * 11) >= diff / 2)
-					strncat(src, "=", 3);
+					strncat(src, "-", 1);
 				else
-					strncat(src, "=", 5);
+					strncat(src, "=", 1);
 			}
 			else
 			{
 				if (Neg)
 				{
-					strncat(src, "=", 3);
+					strncat(src, "-", 1);
 				}
 				else
 				{
 					if (((_barCounter - 11) * 11) >= diff)
-						strncat(src, "=", 3);
+						strncat(src, "-", 1);
 					else
-						strncat(src, "=", 5);
+						strncat(src, "=", 1);
 				}
 			}
 		}
