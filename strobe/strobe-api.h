@@ -26,22 +26,15 @@ SOFTWARE.
 
 #ifndef STROBE_DISABLED
 
-#include <string>
-
-using namespace std;
-
-class strobe_api
+class StrobeAPI
 {
 private:
-	double nexttime, lasttime, framerate;
-	size_t mark;
-	size_t PositiveNormal, PositiveBlack, NegativeNormal, NegativeBlack;
+    int PositiveNormal, PositiveBlack, NegativeNormal, NegativeBlack;
 	char strobemethod[128];
 
 protected:
-	
-	virtual int getSTROBE_COOLDOWN(void);
-	virtual int getSTROBE(void);
+	StrobeAPI();
+	virtual ~StrobeAPI() { };
 
 	typedef enum
 	{
@@ -54,7 +47,7 @@ protected:
 		NegativeBlackFrame
 	} counterType;
 
-	double ActualBrightnessReduction();
+	double ActualBrightnessReduction(void);
 	double LogarithmicBrightnessReduction(double base);
 	double SquareBrightnessReduction(double base);
 	double CubeBrightnessReduction(double base);
@@ -73,9 +66,8 @@ protected:
 	bool isPositive();
 	double effectiveFPS();
 
-	virtual void showNormal(void);
-	virtual void showBlack(void);
-	virtual double currentFPS(void);
+
+	virtual double FPS() = 0;
 
 	void GenerateDebugStatistics(char *src, int size);
 	void GenerateDiffBar(char *src, int size, char type);
@@ -88,27 +80,25 @@ protected:
 	int swapInterval;
 	int cooldownDelay;
 
-	size_t FrameCounter(counterType);
+	int FrameCounter(counterType);
 
-	void ProcessFrame();
+	bool ProcessFrame();
 
 	typedef enum
 	{
 		PHASE_POSITIVE = 1 << 0, // Phase: Positive
 		PHASE_INVERTED = 1 << 1, // Phase: Inverted
 		FRAME_RENDER = 1 << 2  // Frame: Rendered
-	} fstate_e; // Frame State
+	} Framestate; // Frame State
 
-	size_t fCounter;                       // Frame counter
-	size_t pCounter, pNCounter, pBCounter; // Positive phase counters
-	size_t nCounter, nNCounter, nBCounter; // Negative phase counters
-	__int64 elapsedTime;
+	int fCounter;                       // Frame counter
+	int pCounter, pNCounter, pBCounter; // Positive phase counters
+	int nCounter, nNCounter, nBCounter; // Negative phase counters
+	int elapsedTime;
 	double deviation;     // deviation
 	double cdTimer;       // Cooldown timer
 	bool cdTriggered; // Cooldown trigger status
-	fstate_e frameInfo;   // Frame info
-
-	strobe_api();
+	Framestate frameInfo;   // Frame info
 
 };
 

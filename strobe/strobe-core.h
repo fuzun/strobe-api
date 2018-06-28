@@ -27,32 +27,31 @@ SOFTWARE.
 
 #include "strobe-api.h"
 
-#define DEVIATION_LIMIT 1.0
-#define DEVIATION_SIZE 120
+#define __DEVIATION_SIZE 120
 
-class strobe_core : strobe_api
+class Strobe_Core : public StrobeAPI
 {
 private:
-	__int64 recentTime, recentTime2;
-	double delta[DEVIATION_SIZE];
-	size_t fCounterSnapshot;
-	char debugStr[2048];
+	int recentTime, recentTime2;
+	double delta[__DEVIATION_SIZE];
+	int fCounterSnapshot;
 	int offsetX;
 	double nexttime, lasttime;
 	int strobeInterval;
-	__int64 initialTime;
-	void showBlack(void);
-	void showNormal(void);
+	int initialTime;
+	double fps;
+	double deviationLimit;
 
 public:
-	void strobe();
+	Strobe_Core(int strobe_method, int strobe_cooldownDelay, int strobe_swapInterval, double deviation_limit);
+
+	bool strobe();
 	void debugHandler();
-	int getSWAPINTERVAL();
-	int getSTROBE_COOLDOWN(void);
-	int getSTROBE(void);
-	double currentFPS(void);
+	double FPS() override;
+	void setFPS(double fps);
+	void setMethod(int strobe_method);
 	bool active;
-	strobe_core();
+	char debugStr[2048];
 };
 
 #endif

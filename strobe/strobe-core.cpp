@@ -27,57 +27,57 @@ SOFTWARE.
 
 #include "strobe-core.h"
 
+#include <cstring>
 #include <cstdlib>
 #include <chrono>
 
 #define ARRAYSIZE(x) (sizeof(x) / sizeof(x[0]))
 
-#define STROBE_METHOD 2 // 2 : NORMAL - BLACK - BLACK , -1 : BLACK - NORMAL, -3 : BLACK - NORMAL - NORMAL - NORMAL, 3 : NORMAL - BLACK - BLACK - BLACK
-#define STROBE_COOLDOWNDELAY 3 // Waiting time in seconds when frame rate becomes inconsistent
-#define STROBE_SWAPINTERVAL 2 // Swapping phase interval in seconds
+using namespace std;
 
-double randfrom(double min, double max)
+Strobe_Core::Strobe_Core(int strobe_method, int strobe_cooldownDelay, int strobe_swapInterval, double deviation_limit) : deviationLimit(deviation_limit)
 {
-	double range = (max - min);
-	double div = RAND_MAX / range;
-	return min + (rand() / div);
+	recentTime = 0;
+	recentTime2 = 0;
+	memset(delta, 0, sizeof(delta));
+	fCounterSnapshot = 0;
+	offsetX = 0;
+	nexttime = 0;
+	lasttime = 0;
+	strobeInterval = 0;
+	swapInterval = 0;
+	initialTime = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
+	active = true;
+
+	strobeMethod = strobe_method;
+	cooldownDelay = strobe_cooldownDelay;
+	swapInterval = strobe_swapInterval;
+
+    strobeInterval = strobeMethod;
+
 }
 
-void strobe_core::showBlack(void)
+void Strobe_Core::setMethod(int strobe_method)
 {
-	return; // MUST BE IMPLEMENTED!!!
+	strobeMethod = strobe_method;
+	strobeInterval = strobeMethod;
 }
 
-void strobe_core::showNormal(void)
+double Strobe_Core::FPS(void)
 {
-	return; // MUST BE IMPLEMENTED!!!
+	return fps;
 }
 
-double strobe_core::currentFPS(void)
+void Strobe_Core::setFPS(double newFPS)
 {
-	return randfrom(99, 101);
+	fps = newFPS;
 }
 
-int strobe_core::getSTROBE(void)
+bool Strobe_Core::strobe()
 {
-	return strobeMethod;
-}
-
-int strobe_core::getSTROBE_COOLDOWN(void)
-{
-	return cooldownDelay;
-}
-
-int strobe_core::getSWAPINTERVAL()
-{
-	return swapInterval;
-}
-
-void strobe_core::strobe()
-{
-	__int64 delta1;
+	int delta1;
 	double delta2;
-	__int64 currentTime = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
+	int currentTime = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count();
 	delta2 = (currentTime - recentTime2) / 1000.0;
 	recentTime2 = currentTime;
 	elapsedTime = currentTime - initialTime;
@@ -86,22 +86,22 @@ void strobe_core::strobe()
 		cdTimer += delta2;
 	if (fCounter - fCounterSnapshot == 1)
 	{
-		delta[fCounter % ARRAYSIZE(delta)] = currentFPS();
+		delta[fCounter % ARRAYSIZE(delta)] = FPS();
 		deviation = StandardDeviation(delta, ARRAYSIZE(delta));
 	}
 	fCounterSnapshot = fCounter;
 
-	if (getSTROBE_COOLDOWN() > 0)
+	if (cooldownDelay > 0)
 	{
-		if ((cdTimer > (double)abs(getSTROBE_COOLDOWN())) && cdTriggered == true)
+		if ((cdTimer > (double)abs(cooldownDelay)) && cdTriggered == true)
 		{
 			cdTriggered = false;
 			cdTimer = -1.0;
 		}
 
-		if (fCounter > ARRAYSIZE(delta))
+        if (fCounter > (int)ARRAYSIZE(delta))
 		{
-			if (deviation > DEVIATION_LIMIT)
+			if (deviation > deviationLimit)
 			{
 				cdTriggered = true;
 				cdTimer = 0.0;
@@ -113,15 +113,12 @@ void strobe_core::strobe()
 		cdTriggered = false;
 	}
 
-	if (((strobeInterval != getSTROBE()) && (strobeInterval)) ||
-		fCounter == UINT_MAX)
+	if (fCounter == INT_MAX)
 	{
-		strobe_core();
+		Strobe_Core(strobeMethod, cooldownDelay, swapInterval, deviationLimit);
 		strobe();
 	}
 
-	strobeInterval = getSTROBE();
-	swapInterval = getSWAPINTERVAL();
 
 	if (strobeInterval == 0)
 	{
@@ -131,19 +128,18 @@ void strobe_core::strobe()
 		}
 		fCounter = 0;
 
-		showNormal();
-		return;
+		return true;
 	}
 
 	if ((fCounter % 2) == 0)
 	{
 		++pCounter;
-		frameInfo = (fstate_e)(frameInfo | PHASE_POSITIVE);
+		frameInfo = (Framestate)(frameInfo | PHASE_POSITIVE);
 	}
 	else
 	{
 		++nCounter;
-		frameInfo = (fstate_e)(frameInfo & ~PHASE_POSITIVE);
+		frameInfo = (Framestate)(frameInfo & ~PHASE_POSITIVE);
 	}
 
 	if (swapInterval < 0)
@@ -154,11 +150,11 @@ void strobe_core::strobe()
 		delta1 = currentTime - recentTime; // New Currenttime for _delta1 ?
 		if ((delta1 >= (swapInterval * 1000) && (delta1 < (2 * swapInterval * 1000)))) // Basic timer
 		{
-			frameInfo = (fstate_e)(frameInfo | PHASE_INVERTED);
+			frameInfo = (Framestate)(frameInfo | PHASE_INVERTED);
 		}
 		else if (delta1 < (swapInterval * 1000))
 		{
-			frameInfo = (fstate_e)(frameInfo & ~PHASE_INVERTED);
+			frameInfo = (Framestate)(frameInfo & ~PHASE_INVERTED);
 		}
 		else //if (delta1 >= (2 * swapInterval * 1000))
 		{
@@ -170,75 +166,55 @@ void strobe_core::strobe()
 	{
 	case (PHASE_POSITIVE | PHASE_INVERTED):
 		if ((abs(strobeInterval) % 2) == 0)
-			frameInfo = (fstate_e)((((pCounter - 1) % (abs(strobeInterval) + 1)) == (abs(strobeInterval) / 2)) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //even
+			frameInfo = (Framestate)((((pCounter - 1) % (abs(strobeInterval) + 1)) == (abs(strobeInterval) / 2)) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //even
 		else
-			frameInfo = (fstate_e)(frameInfo & ~FRAME_RENDER);
+			frameInfo = (Framestate)(frameInfo & ~FRAME_RENDER);
 		break;
 
 	case (PHASE_POSITIVE & ~PHASE_INVERTED):
 		if (abs(strobeInterval) % 2 == 0)
-			frameInfo = (fstate_e)((((pCounter - 1) % (abs(strobeInterval) + 1)) == 0) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //even
+			frameInfo = (Framestate)((((pCounter - 1) % (abs(strobeInterval) + 1)) == 0) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //even
 		else
 		{
 			if (abs(strobeInterval) == 1)
-				frameInfo = (fstate_e)(frameInfo | FRAME_RENDER);
+				frameInfo = (Framestate)(frameInfo | FRAME_RENDER);
 			else
-				frameInfo = (fstate_e)((((pCounter - 1) % ((abs(strobeInterval) + 1) / 2)) == 0) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //odd
+				frameInfo = (Framestate)((((pCounter - 1) % ((abs(strobeInterval) + 1) / 2)) == 0) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //odd
 		}
 		break;
 
 	case (~PHASE_POSITIVE & PHASE_INVERTED):
 		if (abs(strobeInterval) % 2 == 0)
-			frameInfo = (fstate_e)((((nCounter - 1) % (abs(strobeInterval) + 1)) == 0) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //even
+			frameInfo = (Framestate)((((nCounter - 1) % (abs(strobeInterval) + 1)) == 0) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //even
 		else
 		{
 			if (abs(strobeInterval) == 1)
-				frameInfo = (fstate_e)(frameInfo | FRAME_RENDER);
+				frameInfo = (Framestate)(frameInfo | FRAME_RENDER);
 			else
-				frameInfo = (fstate_e)((((nCounter - 1) % ((abs(strobeInterval) + 1) / 2)) == 0) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //odd
+				frameInfo = (Framestate)((((nCounter - 1) % ((abs(strobeInterval) + 1) / 2)) == 0) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //odd
 		}
 		break;
 
 	case 0:
 		if ((abs(strobeInterval) % 2) == 0)
-			frameInfo = (fstate_e)((((nCounter - 1) % (abs(strobeInterval) + 1)) == (abs(strobeInterval) / 2)) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //even
+			frameInfo = (Framestate)((((nCounter - 1) % (abs(strobeInterval) + 1)) == (abs(strobeInterval) / 2)) ? frameInfo | FRAME_RENDER : frameInfo & ~FRAME_RENDER); //even
 		else
-			frameInfo = (fstate_e)(frameInfo & ~FRAME_RENDER);
+			frameInfo = (Framestate)(frameInfo & ~FRAME_RENDER);
 		break;
 
 	default:
-		frameInfo = (fstate_e)(PHASE_POSITIVE | FRAME_RENDER);
+		frameInfo = (Framestate)(PHASE_POSITIVE | FRAME_RENDER);
 	}
 
 	if (strobeInterval < 0)
-		frameInfo = (fstate_e)(frameInfo ^ FRAME_RENDER);
+		frameInfo = (Framestate)(frameInfo ^ FRAME_RENDER);
 
-	ProcessFrame();
+	return ProcessFrame();
 }
 
-void strobe_core::debugHandler()
+void Strobe_Core::debugHandler()
 {
 	GenerateDebugStatistics(debugStr, ARRAYSIZE(debugStr));
-	printf("%s", debugStr);
-}
-
-strobe_core::strobe_core()
-{
-	recentTime = 0;
-	recentTime2 = 0;
-	memset(delta, 0, sizeof(delta));
-	fCounterSnapshot = 0;
-	offsetX = 0;
-	nexttime = 0;
-	lasttime = 0;
-	strobeInterval = 0;
-	swapInterval = 0;
-	initialTime = chrono::duration_cast<chrono::milliseconds>(chrono::steady_clock::now().time_since_epoch()).count(); // !!!
-	active = true;
-
-	strobeMethod = STROBE_METHOD;
-	cooldownDelay = STROBE_COOLDOWNDELAY;
-	swapInterval = STROBE_SWAPINTERVAL;
 }
 
 #endif

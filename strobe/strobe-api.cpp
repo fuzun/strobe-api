@@ -26,12 +26,38 @@ SOFTWARE.
 
 #define _CRT_SECURE_NO_WARNINGS
 
+#include <cstdio>
+#include <cstring>
+#include <cmath>
 
 #include "strobe-api.h"
 
 #define lossCalculator( x, y ) ( ( ( x ) - ( y ) ) * 100.0 / ( x ) )
 
-double strobe_api::StandardDeviation(const double *data, int n)
+using namespace std;
+
+StrobeAPI::StrobeAPI()
+{
+	PositiveNormal = 0;
+	PositiveBlack = 0;
+	NegativeBlack = 0;
+	NegativeNormal = 0;
+	fCounter = 0;
+	pCounter = 0;
+	pNCounter = 0;
+	pBCounter = 0;
+	nCounter = 0;
+	nNCounter = 0;
+	nBCounter = 0;
+	elapsedTime = 0;
+	deviation = 0;
+	cdTimer = 0;
+	cdTriggered = 0;
+	strobemethod[0] = 0;
+	frameInfo = (Framestate)(PHASE_POSITIVE | FRAME_RENDER);
+}
+
+double StrobeAPI::StandardDeviation(const double *data, int n)
 {
 	double mean = 0.0, sum_deviation = 0.0;
 	int i;
@@ -45,32 +71,11 @@ double strobe_api::StandardDeviation(const double *data, int n)
 	return sqrt(sum_deviation / n);
 }
 
-void strobe_api::showBlack(void)
-{
-	return;
-}
-
-void strobe_api::showNormal(void)
-{
-	return;
-}
-
-int strobe_api::getSTROBE_COOLDOWN(void)
-{
-	// NOT IMPLEMENTED HERE!
-	return 1;
-}
-
-int strobe_api::getSTROBE(void)
-{
-	return 0;
-}
-
-double strobe_api::Cooldown()
+double StrobeAPI::Cooldown()
 {
 	if (0 <= cdTimer)
 	{
-		return ((double)abs(getSTROBE_COOLDOWN()) - cdTimer);
+		return ((double)abs(cooldownDelay) - cdTimer);
 	}
 	else
 	{
@@ -78,7 +83,7 @@ double strobe_api::Cooldown()
 	}
 }
 
-bool strobe_api::isPhaseInverted()
+bool StrobeAPI::isPhaseInverted()
 {
 	if (frameInfo & PHASE_INVERTED)
 		return true;
@@ -86,7 +91,7 @@ bool strobe_api::isPhaseInverted()
 		return false;
 }
 
-bool strobe_api::isNormal()
+bool StrobeAPI::isNormal()
 {
 	if (frameInfo & FRAME_RENDER)
 		return true;
@@ -94,7 +99,7 @@ bool strobe_api::isNormal()
 		return false;
 }
 
-bool strobe_api::isPositive()
+bool StrobeAPI::isPositive()
 {
 	if (frameInfo & PHASE_POSITIVE)
 		return true;
@@ -102,25 +107,31 @@ bool strobe_api::isPositive()
 		return false;
 }
 
-double strobe_api::effectiveFPS()
+double StrobeAPI::effectiveFPS()
 {
-	int strobeInterval = getSTROBE();
+	int strobeInterval = strobeMethod;
 	double eFPS;
-	if (strobeInterval > 0)
-	{
-		eFPS = (currentFPS()) / (strobeInterval + 1);
-	}
-	else if (strobeInterval < 0)
-	{
-		strobeInterval = abs(strobeInterval);
-		eFPS = (currentFPS() * strobeInterval) / (strobeInterval + 1);
-	}
+
+	if (strobeInterval == 0)
+		eFPS = FPS();
 	else
-		eFPS = 0.0;
+	{
+		if (strobeInterval > 0)
+		{
+			eFPS = (FPS()) / (strobeInterval + 1);
+		}
+		else if (strobeInterval < 0)
+		{
+			strobeInterval = abs(strobeInterval);
+			eFPS = (FPS() * strobeInterval) / (strobeInterval + 1);
+		}
+		else
+			eFPS = 0.0;
+	}
 	return eFPS;
 }
 
-void strobe_api::GenerateDiffBar(char *src, int size, char type)
+void StrobeAPI::GenerateDiffBar(char *src, int size, char type)
 {
 	char _barCounter = 0;
 	int diff_NB = 0;
@@ -235,69 +246,75 @@ void strobe_api::GenerateDiffBar(char *src, int size, char type)
 	}
 }
 
-double strobe_api::Frequency()
+double StrobeAPI::Frequency()
 {
-	return (1 / ((1.0f / currentFPS()) * (abs(getSTROBE()) + 1)));
+    if (strobeMethod == 0)
+		return 0.0;
+	else
+		return (1 / ((1.0f / FPS()) * (abs(strobeMethod) + 1)));
 }
 
-double strobe_api::DutyCycle()
+double StrobeAPI::DutyCycle()
 {
-	int strobeInterval = getSTROBE();
+	int strobeInterval = strobeMethod;
 	return (((1.0f / (abs(strobeInterval) + 1)) * 100) * (strobeInterval < 0 ? -strobeInterval : 1));
 }
 
-double strobe_api::PositivePhaseShift()
+double StrobeAPI::PositivePhaseShift()
 {
 	if (!!(frameInfo & PHASE_INVERTED))
-		return (1.0f / currentFPS()) * 1000;
+		return (1.0f / FPS()) * 1000;
 	else
 		return 0.0f;
 }
 
-double strobe_api::NegativePhaseShift()
+double StrobeAPI::NegativePhaseShift()
 {
 	if (!!(frameInfo & PHASE_INVERTED))
-		return abs(getSTROBE()) * (1.0f / currentFPS()) * 1000;
+		return abs(strobeMethod) * (1.0f / FPS()) * 1000;
 	else
 		return 0.0;
 }
 
-double strobe_api::Period()
+double StrobeAPI::Period()
 {
-	return (((1.0f / currentFPS()) * (abs(getSTROBE()) + 1)) * 1000);
+	if (strobeMethod == 0)
+		return 0.0;
+	else
+		return (((1.0f / FPS()) * (abs(strobeMethod) + 1)) * 1000);
 }
 
-double strobe_api::GeometricMean(double x, double y)
+double StrobeAPI::GeometricMean(double x, double y)
 {
 	return sqrt(abs(x * y));
 }
 
-double strobe_api::ArithmeticMean(double x, double y)
+double StrobeAPI::ArithmeticMean(double x, double y)
 {
 	return (x + y) / 2;
 }
 
-double strobe_api::ActualBrightnessReduction()
+double StrobeAPI::ActualBrightnessReduction(void)
 {
-	return lossCalculator(currentFPS(), effectiveFPS());
+	return lossCalculator(FPS(), effectiveFPS());
 }
 
-double strobe_api::LogarithmicBrightnessReduction(double base)
+double StrobeAPI::LogarithmicBrightnessReduction(double base)
 {
-	return lossCalculator(log(base), log(base * effectiveFPS() / currentFPS()));
+	return lossCalculator(log(base), log(base * effectiveFPS() / FPS()));
 }
 
-double strobe_api::SquareBrightnessReduction(double base)
+double StrobeAPI::SquareBrightnessReduction(double base)
 {
-	return lossCalculator(sqrt(base), sqrt(base * effectiveFPS() / currentFPS()));
+	return lossCalculator(sqrt(base), sqrt(base * effectiveFPS() / FPS()));
 }
 
-double strobe_api::CubeBrightnessReduction(double base)
+double StrobeAPI::CubeBrightnessReduction(double base)
 {
-	return lossCalculator(cbrt(base), cbrt(base * effectiveFPS() / currentFPS()));
+	return lossCalculator(cbrt(base), cbrt(base * effectiveFPS() / FPS()));
 }
 
-double strobe_api::Badness_Reducted(bool PWMInvolved)
+double StrobeAPI::Badness_Reducted(bool PWMInvolved)
 {
 	double badness, Diff;
 	int diffP_NB, diffN_NB;
@@ -331,7 +348,7 @@ double strobe_api::Badness_Reducted(bool PWMInvolved)
 		return badness;
 }
 
-double strobe_api::Badness(bool PWMInvolved)
+double StrobeAPI::Badness(bool PWMInvolved)
 {
 	int diffP_NB, diffN_NB;
 	double diffP = 0.0, diffN = 0.0;
@@ -360,7 +377,7 @@ double strobe_api::Badness(bool PWMInvolved)
 		return badness;
 }
 
-size_t strobe_api::FrameCounter(counterType type)
+int StrobeAPI::FrameCounter(counterType type)
 {
 	switch (type)
 	{
@@ -401,16 +418,11 @@ size_t strobe_api::FrameCounter(counterType type)
 	}
 }
 
-double strobe_api::currentFPS()
-{
-	// NOT IMPLEMENTED
-	return 0;
-}
 
-void strobe_api::GenerateDebugStatistics(char *src, int size)
+void StrobeAPI::GenerateDebugStatistics(char *src, int size)
 {
 	char diffBarP[128], diffBarN[128], diffBarT[128];
-	size_t nPositiveNormal, nPositiveBlack, nNegativeNormal, nNegativeBlack;
+	int nPositiveNormal, nPositiveBlack, nNegativeNormal, nNegativeBlack;
 	int diffP_NB, diffN_NB;
 	double diffP = 0.0, diffN = 0.0;
 	double cooldown = cdTimer;
@@ -435,18 +447,25 @@ void strobe_api::GenerateDebugStatistics(char *src, int size)
 
 	if (!strlen(strobemethod))
 	{
-		snprintf(strobemethod, sizeof(strobemethod), (strobeMethod > 0 ? "%d [NORMAL" : "%d [BLACK"), strobeMethod);
-		for (int k = 1; k <= abs(strobeMethod); ++k)
+		if (strobeMethod != 0)
 		{
-			strcat(strobemethod, (strobeMethod > 0 ? " - BLACK" : " - NORMAL"));
+			snprintf(strobemethod, sizeof(strobemethod), (strobeMethod > 0 ? "%d [NORMAL" : "%d [BLACK"), strobeMethod);
+			for (int k = 1; k <= abs(strobeMethod); ++k)
+			{
+				strcat(strobemethod, (strobeMethod > 0 ? " - BLACK" : " - NORMAL"));
+			}
+			strcat(strobemethod, "]");
 		}
-		strcat(strobemethod, "]");
+		else
+		{
+			strcpy(strobemethod, "[NORMAL]");
+		}
 	}
 
 	char strcooldown[64];
 	if (cooldown >= 0.0 && cdTriggered)
 	{
-		snprintf(strcooldown, sizeof(strcooldown), "%.2f secs\n[STROBING DISABLED] ", (double)getSTROBE_COOLDOWN() - cooldown);
+		snprintf(strcooldown, sizeof(strcooldown), "%.2f secs\n[STROBING DISABLED] ", (double)cooldownDelay - cooldown);
 	}
 	else
 		snprintf(strcooldown, sizeof(strcooldown), "0");
@@ -459,13 +478,13 @@ void strobe_api::GenerateDebugStatistics(char *src, int size)
 		"Strobe Cooldown Delay: %d\n"
 		"Elapsed Time: %.2f\n"
 		"isPhaseInverted = %d\n"
-		"Total Frame Count: %zu\n"
-		"(+) Phase Frame Count: %zu\n"
-		"Normal Frame Count: %zu\n"
-		"Black Frame Count: %zu\n"
-		"(-) Phase Frame Count: %zu\n"
-		"Normal Frame Count: %zu\n"
-		"Black Frame Count: %zu\n"
+        "Total Frame Count: %d\n"
+        "(+) Phase Frame Count: %d\n"
+        "Normal Frame Count: %d\n"
+        "Black Frame Count: %d\n"
+        "(-) Phase Frame Count: %d\n"
+        "Normal Frame Count: %d\n"
+        "Black Frame Count: %d\n"
 		"=====ANALYSIS=====\n"
 		"PWM Simulation:\n"
 		" |-> Frequency: %.2f Hz\n"
@@ -488,7 +507,7 @@ void strobe_api::GenerateDebugStatistics(char *src, int size)
 		" |-> Standard Deviation: %.3f\n"
 		" |-> Cooldown: %s\n"
 		"=====ANALYSIS=====\n",
-		currentFPS(),
+		FPS(),
 		effectiveFPS(),
 		strobemethod,
 		swapInterval,
@@ -529,12 +548,14 @@ void strobe_api::GenerateDebugStatistics(char *src, int size)
 	NegativeBlack = FrameCounter(NegativeBlackFrame);
 }
 
-void strobe_api::ProcessFrame()
+bool StrobeAPI::ProcessFrame()
 {
 	if (cdTriggered != false)
 	{
-		frameInfo = (fstate_e)(FRAME_RENDER | (frameInfo & PHASE_POSITIVE));
+		frameInfo = (Framestate)(FRAME_RENDER | (frameInfo & PHASE_POSITIVE));
 	}
+
+	++fCounter;
 
 	if (frameInfo & FRAME_RENDER) // Show normal
 	{
@@ -542,7 +563,8 @@ void strobe_api::ProcessFrame()
 			++pNCounter;
 		else
 			++nNCounter;
-		showNormal();
+
+		return true;
 	}
 	else // Show black
 	{
@@ -550,35 +572,9 @@ void strobe_api::ProcessFrame()
 			++pBCounter;
 		else
 			++nBCounter;
-		showBlack();
+
+		return false;
 	}
-	++fCounter;
 }
-
-strobe_api::strobe_api()
-{
-		nexttime = 0;
-		lasttime = 0;
-		framerate = 0;
-		mark = 0;
-		PositiveNormal = 0;
-		PositiveBlack = 0;
-		NegativeBlack = 0;
-		NegativeNormal = 0;
-		fCounter = 0;
-		pCounter = 0;
-		pNCounter = 0;
-		pBCounter = 0;
-		nCounter = 0;
-		nNCounter = 0;
-		nBCounter = 0;
-		elapsedTime = 0;
-		deviation = 0;
-		cdTimer = 0;
-		cdTriggered = 0;
-		strobemethod[0] = 0;
-		frameInfo = (fstate_e)(PHASE_POSITIVE | FRAME_RENDER);
-}
-
 
 #endif
