@@ -125,7 +125,6 @@ inline void StrobeAPI::generateDiffBar(char * const dst, int size, DifferenceTyp
 	int pBCounter = counter.positiveBlackFrameCount;
 	int nNCounter = counter.negativeRenderedFrameCount;
 	int nBCounter = counter.negativeBlackFrameCount;
-	int fCounter = counter.total();
 	int nCounter = counter.totalNegative();
 	int pCounter = counter.totalPositive();
 
@@ -312,7 +311,6 @@ inline double StrobeAPI::badnessReduced(bool pwmInvolved)
 	int pBCounter = counter.positiveBlackFrameCount;
 	int nNCounter = counter.negativeRenderedFrameCount;
 	int nBCounter = counter.negativeBlackFrameCount;
-	int fCounter = counter.total();
 	int nCounter = counter.totalNegative();
 	int pCounter = counter.totalPositive();
 
@@ -354,7 +352,6 @@ inline double StrobeAPI::badness(bool pwmInvolved)
 	int pBCounter = counter.positiveBlackFrameCount;
 	int nNCounter = counter.negativeRenderedFrameCount;
 	int nBCounter = counter.negativeBlackFrameCount;
-	int fCounter = counter.total();
 	int nCounter = counter.totalNegative();
 	int pCounter = counter.totalPositive();
 
