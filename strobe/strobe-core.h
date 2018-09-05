@@ -21,37 +21,40 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-#pragma once
+
+#ifndef STROBECORE_H
+#define STROBECORE_H
 
 #ifndef STROBE_DISABLED
 
 #include "strobe-api.h"
 
-#define __DEVIATION_SIZE 120
-
-class Strobe_Core : public StrobeAPI
+class StrobeCore : public StrobeAPI
 {
 private:
-	int recentTime, recentTime2;
-	double delta[__DEVIATION_SIZE];
-	int fCounterSnapshot;
-	int offsetX;
-	double nexttime, lasttime;
-	int strobeInterval;
-	int initialTime;
 	double fps;
-	double deviationLimit;
+	double timerSnapshot;
+	bool active;
+	int modeSnapshot;
 
 public:
-	Strobe_Core(int strobe_method, int strobe_cooldownDelay, int strobe_swapInterval, double deviation_limit);
+	StrobeCore(int mode = 1, int phaseSwitchInterval = 0);
+	~StrobeCore();
 
-	bool strobe();
-	void debugHandler();
+	bool strobe(void);
+
 	double FPS() override;
-	void setFPS(double fps);
-	void setMethod(int strobe_method);
-	bool active;
-	char debugStr[2048];
+	int getStrobeMode(void) override;
+	void setFPS(double newFPS);
+	void setMode(int mode);
+	void enable(void);
+	void disable(void);
+	void setActive(bool status);
+	bool isActive(void) override;
 };
+
+#include "strobe-core_cpp_.h"
+
+#endif
 
 #endif

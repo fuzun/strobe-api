@@ -22,84 +22,185 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#pragma once
+#ifndef STROBEAPI_H
+#define STROBEAPI_H
 
 #ifndef STROBE_DISABLED
 
+#include <chrono>
+
 class StrobeAPI
 {
-private:
-    int PositiveNormal, PositiveBlack, NegativeNormal, NegativeBlack;
-	char strobemethod[128];
-
 protected:
-	StrobeAPI();
-	virtual ~StrobeAPI() { };
+	class StrobeTimer
+	{
+	public:
+		inline StrobeTimer()
+		{
+			startTime = std::chrono::system_clock::now();
+		}
 
-	typedef enum
+		inline double elapsedMilliseconds()
+		{
+			std::chrono::time_point<std::chrono::system_clock> endTime = std::chrono::system_clock::now();
+
+			return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count();
+		}
+
+		inline double elapsedSeconds()
+		{
+			return elapsedMilliseconds() / 1000.0;
+		}
+
+	private:
+		std::chrono::time_point<std::chrono::system_clock> startTime;
+	};
+
+	StrobeTimer strobeTimer;
+
+public:
+
+	enum CounterType
 	{
 		TotalFrame,
 		PositiveFrame,
-		PositiveNormalFrame,
+		PositiveRenderedFrame,
 		PositiveBlackFrame,
 		NegativeFrame,
-		NegativeNormalFrame,
+		NegativeRenderedFrame,
 		NegativeBlackFrame
-	} counterType;
+	};
 
-	double ActualBrightnessReduction(void);
-	double LogarithmicBrightnessReduction(double base);
-	double SquareBrightnessReduction(double base);
-	double CubeBrightnessReduction(double base);
-	
-	double Badness(bool PWMInvolved);
-	double Badness_Reducted(bool PWMInvolved);
-
-	double Frequency();
-	double DutyCycle();
-	double PositivePhaseShift();
-	double NegativePhaseShift();
-	double Period();
-
-	bool isPhaseInverted();
-	bool isNormal();
-	bool isPositive();
-	double effectiveFPS();
-
-
-	virtual double FPS() = 0;
-
-	void GenerateDebugStatistics(char *src, int size);
-	void GenerateDiffBar(char *src, int size, char type);
-	double GeometricMean(double x, double y);
-	double ArithmeticMean(double x, double y);
-	double StandardDeviation(const double *data, int n);
-	double Cooldown();
-
-	int strobeMethod;
-	int swapInterval;
-	int cooldownDelay;
-
-	int FrameCounter(counterType);
-
-	bool ProcessFrame();
-
-	typedef enum
+	enum FrameState
 	{
 		PHASE_POSITIVE = 1 << 0, // Phase: Positive
 		PHASE_INVERTED = 1 << 1, // Phase: Inverted
-		FRAME_RENDER = 1 << 2  // Frame: Rendered
-	} Framestate; // Frame State
+		FRAME_RENDER = 1 << 2,  // Frame: Rendered
 
-	int fCounter;                       // Frame counter
-	int pCounter, pNCounter, pBCounter; // Positive phase counters
-	int nCounter, nNCounter, nBCounter; // Negative phase counters
-	int elapsedTime;
-	double deviation;     // deviation
-	double cdTimer;       // Cooldown timer
-	bool cdTriggered; // Cooldown trigger status
-	Framestate frameInfo;   // Frame info
+		_unassigned1 = (PHASE_POSITIVE | PHASE_INVERTED),
+		_unassigned2 = (PHASE_POSITIVE | FRAME_RENDER),
+		_unassigned3 = (PHASE_INVERTED | FRAME_RENDER),
+		_unassigned4 = (PHASE_POSITIVE | PHASE_INVERTED | FRAME_RENDER)
+	};
 
+	enum DifferenceType
+	{
+		PositiveDifference,
+		NegativeDifference,
+		TotalDifference
+	};
+
+private:
+	
+	struct Counter
+	{
+		int positiveRenderedFrameCount;
+		int positiveBlackFrameCount;
+		int negativeRenderedFrameCount;
+		int negativeBlackFrameCount;
+
+		inline int total(void)
+		{
+			int totalFrames = 0;
+			totalFrames += positiveBlackFrameCount;
+			totalFrames += positiveRenderedFrameCount;
+			totalFrames += negativeBlackFrameCount;
+			totalFrames += negativeRenderedFrameCount;
+			return totalFrames;
+		}
+
+		inline int totalPositive(void)
+		{
+			int totalFrames = 0;
+			totalFrames += positiveBlackFrameCount;
+			totalFrames += positiveRenderedFrameCount;
+			return totalFrames;
+		}
+
+		inline int totalNegative(void)
+		{
+			int totalFrames = 0;
+			totalFrames += negativeBlackFrameCount;
+			totalFrames += negativeRenderedFrameCount;
+			return totalFrames;
+		}
+
+		inline int totalBlack(void)
+		{
+			int totalFrames = 0;
+			totalFrames += positiveBlackFrameCount;
+			totalFrames += negativeBlackFrameCount;
+			return totalFrames;
+		}
+
+		inline int totalRendered(void)
+		{
+			int totalFrames = 0;
+			totalFrames += positiveRenderedFrameCount;
+			totalFrames += negativeRenderedFrameCount;
+			return totalFrames;
+		}
+	};
+
+	char *debugInformation;
+
+	void generateDiffBar(char * const dst, int size, DifferenceType type);
+	void generateDebugInformation(void);
+	
+protected:
+	StrobeAPI(int mode, int phaseSwitchInterval);
+	~StrobeAPI();
+
+	Counter counter;
+
+	FrameState frameState;   // Frame info
+
+	virtual bool isActive();
+
+	virtual double FPS();
+
+	bool processFrame(void);
+	
+	int strobeMode;
+	int switchInterval;
+
+	double geometricMean(double x, double y);
+	double arithmeticMean(double x, double y);
+
+public:
+	bool isPhaseInverted(void);
+	bool isFrameRendered(void);
+	bool isPhasePositive(void);
+
+	double actualBrightnessReduction(void);
+	double logarithmicBrightnessReduction(double base);
+	double squareBrightnessReduction(double base);
+	double cubeBrightnessReduction(double base);
+	double otherBrightnessReduction(double base, double (*reductionFunction)(double));
+
+	double badness(bool PWMInvolved);
+	double badnessReduced(bool PWMInvolved);
+
+	double effectiveFPS(void);
+	double frequency(void);
+	double dutyCycle(void);
+	double positivePhaseShift(void);
+	double negativePhaseShift(void);
+	double period(void);
+
+	int frameCount(CounterType type);
+
+	const char * const getDebugInformation(void);
+
+	virtual int getStrobeMode(void);
+	virtual int getPhaseSwitchInterval(void);
+
+	void setStrobeMode(int mode);
+	void setPhaseSwitchInterval(int phaseSwitchInterval);
 };
+
+#include "strobe-api_cpp_.h"
+
+#endif
 
 #endif
