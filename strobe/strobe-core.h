@@ -41,15 +41,15 @@ public:
 	StrobeCore(int mode = 1, int phaseSwitchInterval = 0);
 	~StrobeCore();
 
-	bool strobe(void);
+	bool strobe(void) override;
 
 	double FPS() override;
 	int getStrobeMode(void) override;
-	void setFPS(double newFPS);
-	void setMode(int mode);
-	void enable(void);
-	void disable(void);
-	void setActive(bool status);
+	void setFPS(double newFPS) override;
+	void setMode(int mode) override;
+	void enable(void) override;
+	void disable(void) override;
+	void setActive(bool status) override;
 	bool isActive(void) override;
 };
 
