@@ -28,7 +28,6 @@ SOFTWARE.
 
 #include "strobe-core.h"
 
-
 class Timer // Simple timer. Gathered from the internet
 {
 public:
@@ -94,7 +93,7 @@ struct StrobeOutput
 	double badnessReducedPwm;
 };
 
-void assign(StrobeOutput * const output, StrobeCore * const strobe)
+void assign(StrobeOutput * const output, StrobeAPI * const strobe)
 {
 	output->eFPS                       = strobe->effectiveFPS();
 	output->fps_                       = strobe->FPS();
@@ -116,7 +115,7 @@ void assign(StrobeOutput * const output, StrobeCore * const strobe)
 
 int main()
 {
-	StrobeCore *strobe;
+	StrobeAPI *strobe;
 	Timer timer;
 	
 	srand((unsigned int)time(NULL));

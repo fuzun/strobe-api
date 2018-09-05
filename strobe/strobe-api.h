@@ -148,16 +148,9 @@ private:
 	void generateDebugInformation(void);
 	
 protected:
-	StrobeAPI(int mode, int phaseSwitchInterval);
-	~StrobeAPI();
-
 	Counter counter;
 
 	FrameState frameState;   // Frame info
-
-	virtual bool isActive();
-
-	virtual double FPS();
 
 	bool processFrame(void);
 	
@@ -168,6 +161,9 @@ protected:
 	double arithmeticMean(double x, double y);
 
 public:
+	StrobeAPI(int mode, int phaseSwitchInterval);
+	virtual ~StrobeAPI();
+
 	bool isPhaseInverted(void);
 	bool isFrameRendered(void);
 	bool isPhasePositive(void);
@@ -194,6 +190,17 @@ public:
 
 	virtual int getStrobeMode(void);
 	virtual int getPhaseSwitchInterval(void);
+
+	virtual bool strobe(void) = 0;
+	virtual double FPS() = 0;
+	virtual void setFPS(double newFPS) = 0;
+
+	virtual void setMode(int mode);
+	virtual void enable(void) = 0;
+	virtual void disable(void) = 0;
+	virtual void setActive(bool status) = 0;
+
+	virtual bool isActive(void);
 
 	void setStrobeMode(int mode);
 	void setPhaseSwitchInterval(int phaseSwitchInterval);

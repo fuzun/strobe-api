@@ -50,11 +50,6 @@ inline StrobeAPI::~StrobeAPI()
 	debugInformation = nullptr;
 }
 
-inline int StrobeAPI::getStrobeMode(void)
-{
-	return strobeMode;
-}
-
 inline int StrobeAPI::getPhaseSwitchInterval(void)
 {
 	return switchInterval;
@@ -564,9 +559,14 @@ inline bool StrobeAPI::isActive()
 	return true;
 }
 
-inline double StrobeAPI::FPS()
+inline void StrobeAPI::setMode(int mode)
 {
-	return 0.0;
+	strobeMode = mode;
+}
+
+inline int StrobeAPI::getStrobeMode(void)
+{
+	return strobeMode;
 }
 
 inline bool StrobeAPI::processFrame(void)
