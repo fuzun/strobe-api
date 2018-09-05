@@ -5,6 +5,8 @@ strobe-api is a simple software based strobe (a motion blur elimination method) 
 
 Online demo for motion blur elimination through black frame insertion / replacement method can be found here: https://www.testufo.com/blackframes
 
+Black frame insertion technique greatly reduces motion blur which is extremely important in modern video games. However it has some disadvantages such as reduced 'effective' fps and brightness. For example, least aggressive mode causes effective fps to drop to half and it also causes %35~ brightness reduction. StrobeAPI provides almost all necessary information regarding its side effects.
+
 ## How To Use?
 To use this project, you need to find an implementation for StrobeAPI. There is a simple but efficient implementation called "Strobe Core" which is already placed in the project source directory.
 StrobeAPI is a header-only library so it only consists of header files. test.cpp in the source directory is used for testing and not necessary for production. However, it can be kept without any problem as long as you don't include it in your project.
