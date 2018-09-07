@@ -481,73 +481,73 @@ inline void StrobeAPI::generateDebugInformation(void)
 		}
 	}
 
-	snprintf(dst,
-		4096,
-		"%.2f FPS\n"
-		"%.2f eFPS\n"
-		"Strobe Mode: %s\n"
-		"Phase Switch Interval: %d\n"
-		"Elapsed Time: %.2f\n"
-		"isPhaseInverted = %d\n"
-        "Total Frame Count: %d\n"
-        "(+) Phase Frame Count: %d\n"
-        " Normal Frame Count: %d\n"
-        " Black Frame Count: %d\n"
-        "(-) Phase Frame Count: %d\n"
-        " Normal Frame Count: %d\n"
-        " Black Frame Count: %d\n"
-		"=====ANALYSIS=====\n"
-		"PWM Simulation:\n"
-		" |-> Frequency: %.2f Hz\n"
-		" |-> Duty Cycle: %.2f%%\n"
-		" |-> Phase Shift: +%.4f msec || -%.4f msec\n"
-		" |-> Period: %.2f msec\n"
-		"Brightness Reduction:\n"
-		" |-> [LINEAR] Actual Reduction: %.2f%%\n"
-		" |-> [LOG] Realistic Reduction (350 cd/m2 base): %.2f%%\n"
-		" |-> [SQUARE] Realistic Reduction (350 cd/m2 base): %.2f%%\n"
-		" |-> [CUBE] Realistic Reduction (350 cd/m2 base): %.2f%%\n"
-		"Difference (+): %s\n"
-		"Difference (-): %s\n"
-		"Difference (TOTAL): %s\n"
-		"Geometric Mean: %.4f\n"
-		"Geometric / Arithmetic Mean Difference: %.4f\n"
-		"[EXPERIMENTAL] Badness: %.4f\n"
-		"[EXPERIMENTAL] Badness x PWM Period: %.4f\n"
-		"[EXPERIMENTAL] Badness (Reduced): %.4f\n"
-		"[EXPERIMENTAL] Badness (Reduced) x PWM Period: %.4f\n"
-		"=====ANALYSIS=====\n",
-		FPS(),
-		effectiveFPS(),
-		modeDescription,
-		switchInterval,
-		strobeTimer.elapsedSeconds(),
-		isPhaseInverted(),
-		fCounter,
-		pCounter,
-		pNCounter,
-		pBCounter,
-		nCounter,
-		nNCounter,
-		nBCounter,
-		frequency(),
-		dutyCycle(),
-		positivePhaseShift(),
-		negativePhaseShift(),
-		period(),
-		actualBrightnessReduction(),
-		logarithmicBrightnessReduction(350.0),
-		squareBrightnessReduction(350.0),
-		cubeBrightnessReduction(350.0),
-		diffBarP,
-		diffBarN,
-		diffBarT,
-		geometricMean(diffP, diffN),
-		arithmeticMean(diffP, diffN) - geometricMean(diffP, diffN),
-		badness(false),
-		badness(true),
-		badnessReduced(false),
-		badnessReduced(true)
+	snprintf(dst, \
+		4096, \
+		"%.2f FPS\n" \
+		"%.2f eFPS\n" \
+		"Strobe Mode: %s\n" \
+		"Phase Switch Interval: %d\n" \
+		"Elapsed Time: %.2f\n" \
+		"isPhaseInverted = %d\n" \
+		"Total Frame Count: %d\n" \
+		"(+) Phase Frame Count: %d\n" \
+		" Rendered Frame Count: %d\n" \
+		" Black Frame Count: %d\n" \
+		"(-) Phase Frame Count: %d\n" \
+		" Rendered Frame Count: %d\n" \
+		" Black Frame Count: %d\n" \
+		"=====ANALYSIS=====\n" \
+		"PWM Simulation:\n" \
+		" |-> Frequency: %.2f Hz\n" \
+		" |-> Duty Cycle: %.2f%%\n" \
+		" |-> Phase Shift: +%.4f msec || -%.4f msec\n" \
+		" |-> Period: %.2f msec\n" \
+		"Brightness Reduction:\n" \
+		" |-> [LINEAR] Actual Reduction: %.2f%%\n" \
+		" |-> [LOG] Realistic Reduction (350 cd/m2 base): %.2f%%\n" \
+		" |-> [SQUARE] Realistic Reduction (350 cd/m2 base): %.2f%%\n" \
+		" |-> [CUBE] Realistic Reduction (350 cd/m2 base): %.2f%%\n" \
+		"Difference (+): %s\n" \
+		"Difference (-): %s\n" \
+		"Difference (TOTAL): %s\n" \
+		"Geometric Mean: %.4f\n" \
+		"Geometric / Arithmetic Mean Difference: %.4f\n" \
+		"[EXPERIMENTAL] Badness: %.4f\n" \
+		"[EXPERIMENTAL] Badness x PWM Period: %.4f\n" \
+		"[EXPERIMENTAL] Badness (Reduced): %.4f\n" \
+		"[EXPERIMENTAL] Badness (Reduced) x PWM Period: %.4f\n" \
+		"=====ANALYSIS=====\n", \
+		FPS(), \
+		effectiveFPS(), \
+		modeDescription, \
+		switchInterval, \
+		strobeTimer.elapsedSeconds(), \
+		isPhaseInverted(), \
+		fCounter, \
+		pCounter, \
+		pNCounter, \
+		pBCounter, \
+		nCounter, \
+		nNCounter, \
+		nBCounter, \
+		frequency(), \
+		dutyCycle(), \
+		positivePhaseShift(), \
+		negativePhaseShift(), \
+		period(), \
+		actualBrightnessReduction(), \
+		logarithmicBrightnessReduction(350.0), \
+		squareBrightnessReduction(350.0), \
+		cubeBrightnessReduction(350.0), \
+		diffBarP, \
+		diffBarN, \
+		diffBarT, \
+		geometricMean(diffP, diffN), \
+		arithmeticMean(diffP, diffN) - geometricMean(diffP, diffN), \
+		badness(false), \
+		badness(true), \
+		badnessReduced(false), \
+		badnessReduced(true) \
 		);
 }
 
