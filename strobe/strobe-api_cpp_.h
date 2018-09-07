@@ -67,7 +67,7 @@ inline void StrobeAPI::setPhaseSwitchInterval(int phaseSwitchInterval)
 	switchInterval = phaseSwitchInterval;
 }
 
-inline const char * const StrobeAPI::getDebugInformation(void)
+inline const char * StrobeAPI::getDebugInformation(void)
 {
 	generateDebugInformation();
 	return debugInformation;
