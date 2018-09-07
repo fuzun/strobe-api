@@ -83,6 +83,8 @@ public:
 		_unassigned4 = (PHASE_POSITIVE | PHASE_INVERTED | FRAME_RENDER)
 	};
 
+private:
+
 	enum DifferenceType
 	{
 		PositiveDifference,
@@ -90,8 +92,6 @@ public:
 		TotalDifference
 	};
 
-private:
-	
 	struct Counter
 	{
 		int positiveRenderedFrameCount;
