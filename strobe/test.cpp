@@ -64,7 +64,9 @@ private:
 };
 
 bool assert_triggered = false;
-#define assert_(expr) if(!assert_triggered) assert_triggered = true; assert((expr));
+
+#define assert_(expr) \
+	if(!assert_triggered) assert_triggered = true; assert((expr));
 
 double random(int min, int max)
 {
@@ -117,11 +119,11 @@ int main()
 {
 	StrobeAPI *strobe;
 	Timer timer;
-	
-	srand((unsigned int)time(NULL));
-
 	StrobeOutput output;
 	double fps;
+
+	srand((unsigned int)time(NULL));
+	memset(&output, 0, sizeof(output));
 
 	strobe = new StrobeCore(1, 1);
 	while (timer.elapsedSeconds() < 10)
@@ -147,9 +149,9 @@ int main()
 		assert_(output.badnessPWM == output.badness * output.period);
 		assert_(output.badnessReducedPwm == output.badnessReduced * output.period);
 	}
-	delete strobe;
 	fflush(stdout);
-
+	delete strobe;
+	
 	strobe = new StrobeCore(2, 3);
 	timer.restart();
 	while (timer.elapsedSeconds() < 10)
@@ -174,8 +176,8 @@ int main()
 		assert_(output.badnessPWM == output.badness * output.period);
 		assert_(output.badnessReducedPwm == output.badnessReduced * output.period);
 	}
-	delete strobe;
 	fflush(stdout);
+	delete strobe;
 
 	strobe = new StrobeCore(0, 0);
 	timer.restart();
@@ -203,8 +205,8 @@ int main()
 		assert_(output.brightnessReduction == 0.0);
 		assert_(output.badnessReduced <= DBL_MIN);
 	}
-	delete strobe;
 	fflush(stdout);
+	delete strobe;
 
 	strobe = new StrobeCore(-3, 2);
 	timer.restart();
@@ -230,8 +232,8 @@ int main()
 		assert_(output.badnessPWM == output.badness * output.period);
 		assert_(output.badnessReducedPwm == output.badnessReduced * output.period);
 	}
-	delete strobe;
 	fflush(stdout);
+	delete strobe;
 
 	strobe = new StrobeCore(1, 0);
 	strobe->disable();
@@ -266,8 +268,8 @@ int main()
 	assert_(strobe->getStrobeMode() == 1);
 	assert_(strobe->getPhaseSwitchInterval() == 0);
 
-	delete strobe;
 	fflush(stdout);
+	delete strobe;
 
 	if (assert_triggered)
 		return EXIT_FAILURE;
