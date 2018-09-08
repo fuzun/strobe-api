@@ -127,7 +127,7 @@ inline bool StrobeCore::strobe(void)
 	{
 		double difference = strobeTimer.elapsedSeconds() - timerSnapshot;
 
-		if (difference >= switchInterval) // Basic timer
+		if (difference >= switchInterval)
 		{
 			frameState = (FrameState)(frameState ^ PHASE_INVERTED);
 			timerSnapshot = strobeTimer.elapsedSeconds();
