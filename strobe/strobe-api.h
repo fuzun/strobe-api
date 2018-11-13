@@ -186,7 +186,7 @@ public:
 
 	int frameCount(CounterType type);
 
-	const char * getDebugInformation(void);
+	char * getDebugInformation(void);
 
 	virtual int getStrobeMode(void);
 	virtual int getPhaseSwitchInterval(void);
