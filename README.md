@@ -57,9 +57,12 @@ Strobe swap interval = 2,
 Strobe cooldown delay = 3,
 FPS = randomly generated in the range of (99, 101)
 
-![Simulation](https://vgy.me/An4BfE.png)
+![Simulation](https://i.imgur.com/pO7tP3N.png)
 
 ## Projects using StrobeAPI
  - https://github.com/fuzun/Flappy-Bird-Qt
  - https://github.com/fuzun/xash3d-strobe (Uses old C version of StrobeAPI)
-
+ 
+---
+ 
+![signalsimulation](https://i.imgur.com/9Reb4GF.png)
