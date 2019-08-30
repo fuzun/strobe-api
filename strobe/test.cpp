@@ -63,10 +63,6 @@ private:
 	std::chrono::time_point<std::chrono::system_clock> m_StartTime;
 };
 
-bool assert_triggered = false;
-
-#define assert_(expr) \
-	if(!assert_triggered) assert_triggered = true; assert((expr));
 
 double random(int min, int max)
 {
@@ -135,19 +131,19 @@ int main()
 
 		assign(&output, strobe);
 
-		assert_(strobe->getPhaseSwitchInterval() == 1);
-		assert_(strobe->getStrobeMode() == 1);
-		assert_(output.fps_ >= 58 && output.fps_ <= 62);
-		assert_(output.eFPS == output.fps_ / 2);
-		assert_(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
-		assert_(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
-		assert_(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
-		assert_(output.frequency > 0);
-		assert_(fabs(output.frequency - output.eFPS) < 1);
-		assert_(fabs(output.frequency - 1000 / output.period) < 0.1);
-		assert_(output.brightnessReduction == (output.fps_ - output.eFPS) * 100.0 / output.fps_);
-		assert_(output.badnessPWM == output.badness * output.period);
-		assert_(output.badnessReducedPwm == output.badnessReduced * output.period);
+		assert(strobe->getPhaseSwitchInterval() == 1);
+		assert(strobe->getStrobeMode() == 1);
+		assert(output.fps_ >= 58 && output.fps_ <= 62);
+		assert(output.eFPS == output.fps_ / 2);
+		assert(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
+		assert(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
+		assert(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
+		assert(output.frequency > 0);
+		assert(fabs(output.frequency - output.eFPS) < 1);
+		assert(fabs(output.frequency - 1000 / output.period) < 0.1);
+		assert(output.brightnessReduction == (output.fps_ - output.eFPS) * 100.0 / output.fps_);
+		assert(output.badnessPWM == output.badness * output.period);
+		assert(output.badnessReducedPwm == output.badnessReduced * output.period);
 	}
 	fflush(stdout);
 	delete strobe;
@@ -163,18 +159,18 @@ int main()
 
 		assign(&output, strobe);
 
-		assert_(strobe->getPhaseSwitchInterval() == 3);
-		assert_(strobe->getStrobeMode() == 2);
-		assert_(output.fps_ >= 120 && output.fps_ <= 144);
-		assert_(output.eFPS == output.fps_ / 3);
-		assert_(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
-		assert_(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
-		assert_(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
-		assert_(output.frequency > 0);
-		assert_(fabs(output.frequency - 1000 / output.period) < 0.1);
-		assert_(output.brightnessReduction == (output.fps_ - output.eFPS) * 100.0 / output.fps_);
-		assert_(output.badnessPWM == output.badness * output.period);
-		assert_(output.badnessReducedPwm == output.badnessReduced * output.period);
+		assert(strobe->getPhaseSwitchInterval() == 3);
+		assert(strobe->getStrobeMode() == 2);
+		assert(output.fps_ >= 120 && output.fps_ <= 144);
+		assert(output.eFPS == output.fps_ / 3);
+		assert(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
+		assert(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
+		assert(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
+		assert(output.frequency > 0);
+		assert(fabs(output.frequency - 1000 / output.period) < 0.1);
+		assert(output.brightnessReduction == (output.fps_ - output.eFPS) * 100.0 / output.fps_);
+		assert(output.badnessPWM == output.badness * output.period);
+		assert(output.badnessReducedPwm == output.badnessReduced * output.period);
 	}
 	fflush(stdout);
 	delete strobe;
@@ -190,20 +186,20 @@ int main()
 
 		assign(&output, strobe);
 
-		assert_(strobe->getPhaseSwitchInterval() == 0);
-		assert_(strobe->getStrobeMode() == 0);
-		assert_(result);
-		assert_(output.fps_ >= 29 && output.fps_ <= 31);
-		assert_(output.eFPS == output.fps_);
-		assert_(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
-		assert_(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
-		assert_(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
-		assert_(output.negativeBlackFrameCount == 0);
-		assert_(output.positiveBlackFrameCount == 0);
-		assert_(output.frequency == 0.0);
-		assert_(output.period >= DBL_MAX);
-		assert_(output.brightnessReduction == 0.0);
-		assert_(output.badnessReduced <= DBL_MIN);
+		assert(strobe->getPhaseSwitchInterval() == 0);
+		assert(strobe->getStrobeMode() == 0);
+		assert(result);
+		assert(output.fps_ >= 29 && output.fps_ <= 31);
+		assert(output.eFPS == output.fps_);
+		assert(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
+		assert(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
+		assert(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
+		assert(output.negativeBlackFrameCount == 0);
+		assert(output.positiveBlackFrameCount == 0);
+		assert(output.frequency == 0.0);
+		assert(output.period >= DBL_MAX);
+		assert(output.brightnessReduction == 0.0);
+		assert(output.badnessReduced <= DBL_MIN);
 	}
 	fflush(stdout);
 	delete strobe;
@@ -219,18 +215,18 @@ int main()
 
 		assign(&output, strobe);
 
-		assert_(strobe->getPhaseSwitchInterval() == 2);
-		assert_(strobe->getStrobeMode() == -3);
-		assert_(output.fps_ >= 950 && output.fps_ <= 1050);
-		assert_(output.eFPS == output.fps_ * 3 / 4);
-		assert_(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
-		assert_(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
-		assert_(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
-		assert_(output.frequency > 0);
-		assert_(fabs(output.frequency - 1000 / output.period) < 0.1);
-		assert_(output.brightnessReduction < 50.0);
-		assert_(output.badnessPWM == output.badness * output.period);
-		assert_(output.badnessReducedPwm == output.badnessReduced * output.period);
+		assert(strobe->getPhaseSwitchInterval() == 2);
+		assert(strobe->getStrobeMode() == -3);
+		assert(output.fps_ >= 950 && output.fps_ <= 1050);
+		assert(output.eFPS == output.fps_ * 3 / 4);
+		assert(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
+		assert(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
+		assert(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
+		assert(output.frequency > 0);
+		assert(fabs(output.frequency - 1000 / output.period) < 0.1);
+		assert(output.brightnessReduction < 50.0);
+		assert(output.badnessPWM == output.badness * output.period);
+		assert(output.badnessReducedPwm == output.badnessReduced * output.period);
 	}
 	fflush(stdout);
 	delete strobe;
@@ -244,18 +240,18 @@ int main()
 
 		assign(&output, strobe);
 
-		assert_(strobe->getPhaseSwitchInterval() == 3);
-		assert_(strobe->getStrobeMode() == 4);
-		assert_(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
-		assert_(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
-		assert_(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
+		assert(strobe->getPhaseSwitchInterval() == 3);
+		assert(strobe->getStrobeMode() == 4);
+		assert(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
+		assert(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
+		assert(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
 	}
 	fflush(stdout);
 	delete strobe;
 
 	strobe = new StrobeCore(1, 0, false);
 	strobe->disable();
-	assert_(!strobe->isActive());
+	assert(!strobe->isActive());
 	timer.restart();
 	while (timer.elapsedSeconds() < 10)
 	{
@@ -266,31 +262,28 @@ int main()
 
 		assign(&output, strobe);
 
-		assert_(strobe->getPhaseSwitchInterval() == 0);
-		assert_(strobe->getStrobeMode() == 1);
-		assert_(output.fps_ >= 119 && output.fps_ <= 121);
-		assert_(output.eFPS == output.fps_);
-		assert_(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
-		assert_(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
-		assert_(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
-		assert_(output.negativeBlackFrameCount == 0);
-		assert_(output.positiveBlackFrameCount == 0);
-		assert_(output.frequency == 0.0);
-		assert_(output.period >= DBL_MAX);
-		assert_(output.brightnessReduction == 0.0);
-		assert_(output.badnessReduced <= DBL_MIN);
+		assert(strobe->getPhaseSwitchInterval() == 0);
+		assert(strobe->getStrobeMode() == 1);
+		assert(output.fps_ >= 119 && output.fps_ <= 121);
+		assert(output.eFPS == output.fps_);
+		assert(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
+		assert(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
+		assert(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
+		assert(output.negativeBlackFrameCount == 0);
+		assert(output.positiveBlackFrameCount == 0);
+		assert(output.frequency == 0.0);
+		assert(output.period >= DBL_MAX);
+		assert(output.brightnessReduction == 0.0);
+		assert(output.badnessReduced <= DBL_MIN);
 	}
 	strobe->enable();
 	timer.restart();
-	assert_(strobe->isActive());
-	assert_(strobe->getStrobeMode() == 1);
-	assert_(strobe->getPhaseSwitchInterval() == 0);
+	assert(strobe->isActive());
+	assert(strobe->getStrobeMode() == 1);
+	assert(strobe->getPhaseSwitchInterval() == 0);
 
 	fflush(stdout);
 	delete strobe;
 
-	if (assert_triggered)
-		return EXIT_FAILURE;
-
-	return EXIT_SUCCESS;
+	return 0;
 }
