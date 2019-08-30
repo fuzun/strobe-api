@@ -125,7 +125,7 @@ int main()
 	srand((unsigned int)time(NULL));
 	memset(&output, 0, sizeof(output));
 
-	strobe = new StrobeCore(1, 1);
+	strobe = new StrobeCore(1, 1, false);
 	while (timer.elapsedSeconds() < 10)
 	{
 		fps = random(58, 62);
@@ -152,7 +152,7 @@ int main()
 	fflush(stdout);
 	delete strobe;
 	
-	strobe = new StrobeCore(2, 3);
+	strobe = new StrobeCore(2, 3, false);
 	timer.restart();
 	while (timer.elapsedSeconds() < 10)
 	{
@@ -179,7 +179,7 @@ int main()
 	fflush(stdout);
 	delete strobe;
 
-	strobe = new StrobeCore(0, 0);
+	strobe = new StrobeCore(0, 0, false);
 	timer.restart();
 	while (timer.elapsedSeconds() < 10)
 	{
@@ -208,7 +208,7 @@ int main()
 	fflush(stdout);
 	delete strobe;
 
-	strobe = new StrobeCore(-3, 2);
+	strobe = new StrobeCore(-3, 2, false);
 	timer.restart();
 	while (timer.elapsedSeconds() < 10)
 	{
@@ -235,7 +235,25 @@ int main()
 	fflush(stdout);
 	delete strobe;
 
-	strobe = new StrobeCore(1, 0);
+	strobe = new StrobeCore(4, 3, true);
+	timer.restart();
+	while (timer.elapsedSeconds() < 10)
+	{
+		strobe->strobe();
+		printf("%s", strobe->getDebugInformation());
+
+		assign(&output, strobe);
+
+		assert_(strobe->getPhaseSwitchInterval() == 3);
+		assert_(strobe->getStrobeMode() == 4);
+		assert_(output.totalFrameCount == output.negativeFrameCount + output.positiveFrameCount);
+		assert_(output.positiveFrameCount == output.positiveBlackFrameCount + output.positiveRenderedFrameCount);
+		assert_(output.negativeFrameCount == output.negativeBlackFrameCount + output.negativeRenderedFrameCount);
+	}
+	fflush(stdout);
+	delete strobe;
+
+	strobe = new StrobeCore(1, 0, false);
 	strobe->disable();
 	assert_(!strobe->isActive());
 	timer.restart();

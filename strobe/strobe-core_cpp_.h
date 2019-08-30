@@ -26,11 +26,13 @@ SOFTWARE.
 #include <cstdlib>
 #include <chrono>
 
-inline StrobeCore::StrobeCore(int mode, int phaseSwitchInterval) : StrobeAPI(mode, phaseSwitchInterval)
+inline StrobeCore::StrobeCore(int mode, int phaseSwitchInterval, bool internalFPSCalculation) : StrobeAPI(mode, phaseSwitchInterval), internalFPSCalc(internalFPSCalculation)
 {
 	fps = 0;
 	timerSnapshot = 0;
 	modeSnapshot = mode;
+	fpsTimerSnapshot = strobeTimer.elapsedMilliseconds();
+	counterSnapshot = counter.total();
 
 	active = true;
 }
@@ -134,6 +136,20 @@ inline bool StrobeCore::strobe(void)
 		}
 	}
 
+	if (internalFPSCalc)
+	{
+		double elapsedTime = strobeTimer.elapsedMilliseconds();
+		int frameTotal = counter.total();
+		if (elapsedTime - fpsTimerSnapshot >= 1000)
+		{
+			fpsTimerSnapshot = strobeTimer.elapsedMilliseconds();
+			counterSnapshot = counter.total();
+		}
+		else
+		{
+			setFPS(1000.0f * (frameTotal - counterSnapshot) / (elapsedTime - fpsTimerSnapshot));
+		}
+	}
 
 	switch (frameState & (PHASE_POSITIVE | PHASE_INVERTED))
 	{

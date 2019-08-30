@@ -34,11 +34,14 @@ class StrobeCore : public StrobeAPI
 private:
 	double fps;
 	double timerSnapshot;
+	double fpsTimerSnapshot;
 	bool active;
+	bool internalFPSCalc;
 	int modeSnapshot;
+	int counterSnapshot;
 
 public:
-	StrobeCore(int mode = 1, int phaseSwitchInterval = 0);
+	StrobeCore(int mode = 1, int phaseSwitchInterval = 0, bool internalFPSCalculation = true);
 	~StrobeCore();
 
 	bool strobe(void) override;
