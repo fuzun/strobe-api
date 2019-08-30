@@ -75,13 +75,13 @@ struct StrobeOutput
 {
 	double eFPS;
 	double fps_;
-	double totalFrameCount;
-	double positiveFrameCount;
-	double negativeFrameCount;
-	double positiveBlackFrameCount;
-	double negativeBlackFrameCount;
-	double positiveRenderedFrameCount;
-	double negativeRenderedFrameCount;
+	int totalFrameCount;
+	int positiveFrameCount;
+	int negativeFrameCount;
+	int positiveBlackFrameCount;
+	int negativeBlackFrameCount;
+	int positiveRenderedFrameCount;
+	int negativeRenderedFrameCount;
 	double frequency;
 	double period;
 	double brightnessReduction;
