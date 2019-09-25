@@ -25,8 +25,10 @@ For integration examples, see test.cpp and Flappy-Bird-Qt project linked at the 
     int main()
     {
     ...
-	    StrobeAPI *strobe = new StrobeCore(1 /* Strobe Mode 1: Applies RENDER - BLACK sequence */, 0 /* Interval for phase switching. Use only if image retention occurs */);
-	...
+	    StrobeAPI *strobe = new StrobeCore(1 /* Strobe Mode 1: Applies RENDER - BLACK sequence, 2: RENDER - BLACK - BLACK, -2: BLACK - BLACK - RENDER*/, \
+	    0 /* Interval for phase switching in seconds. Use only if image retention occurs. Doesn't matter when StrobeMode is even. */, \
+	    true /* Built-in FPS calculation. Use false to disable */);
+    ...
     }
     
     void SwapBuffers()
@@ -34,17 +36,19 @@ For integration examples, see test.cpp and Flappy-Bird-Qt project linked at the 
 	...
 	    // At the end of swap buffers code, a bool value coming from the strobe() function should be used to determine whether to show actual rendered frame or to show completely black frame
 	    // StrobeAPI automatically tracks previous and upcoming frames so do not intercept once it starts keep tracking.
+	    // Warning: Do not omit generating a new frame when strobe output is false. It will break synchronization. In general, StrobeAPI integration overhead should be kept at absolute minimum.
+	    
 	    bool showRenderedFrame = strobe->strobe();
 	    
 	    if(showRenderedFrame)
-		    // Do the stuff as usual
+		    // Do the stuff as usual.
 	    else
-		    // Show black frame
+		    // Show black frame.
 	}
 	void fps()
 	{
 	...
-		strobe->setFPS(fps);
+		strobe->setFPS(fps); // If built-in FPS calculation is disabled.
 	}
 	char * strobeDebugOutput()
 	{
@@ -60,9 +64,12 @@ FPS = randomly generated in the range of (99, 101)
 ![Simulation](https://i.imgur.com/pO7tP3N.png)
 
 ## Projects using StrobeAPI
+ - https://github.com/fuzun/desktopbfi (StrobeAPI on Desktop)
  - https://github.com/fuzun/Flappy-Bird-Qt
  - https://github.com/fuzun/xash3d-strobe (Uses old C version of StrobeAPI)
  
 ---
- 
+
+How PWM simulation works:
+
 ![signalsimulation](https://i.imgur.com/9Reb4GF.png)
