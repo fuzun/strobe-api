@@ -73,3 +73,7 @@ FPS = randomly generated in the range of (99, 101)
 How PWM simulation works:
 
 ![signalsimulation](https://i.imgur.com/9Reb4GF.png)
+
+"Badness" algorithm:
+
+![badness](https://i.vgy.me/qbzBOH.png)
