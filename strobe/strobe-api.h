@@ -147,6 +147,8 @@ private:
 	void generateDiffBar(char * const dst, int size, DifferenceType type);
 	void generateDebugInformation(void);
 	
+	void strConcat(char * const dst, int size, const char * const src);
+
 protected:
 	Counter counter;
 

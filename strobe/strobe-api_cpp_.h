@@ -173,34 +173,33 @@ inline void StrobeAPI::generateDiffBar(char * const dst, int size, DifferenceTyp
 
 	snprintf(dst, size, "[");
 
-	// Fix print into itself
 	for (_barCounter = 0; _barCounter <= 20; ++_barCounter)
 	{
 		if (_barCounter == 10)
 		{
-			snprintf(dst, size, "%s%s", dst, "O");
+			strConcat(dst, size, "O");
 		}
 		else if (_barCounter < 10)
 		{
 			if (type == 2)
 			{
 				if (100 - (_barCounter * 11) <= diff / 2)
-					snprintf(dst, size, "%s%s", dst, "=");
+					strConcat(dst, size, "=");
 				else
-					snprintf(dst, size, "%s%s", dst, "-");
+					strConcat(dst, size, "-");
 			}
 			else
 			{
 				if (Neg)
 				{
 					if (100 - (_barCounter * 11) <= diff)
-						snprintf(dst, size, "%s%s", dst, "=");
+						strConcat(dst, size, "=");
 					else
-						snprintf(dst, size, "%s%s", dst, "-");
+						strConcat(dst, size, "-");
 				}
 				else
 				{
-					snprintf(dst, size, "%s%s", dst, "-");
+					strConcat(dst, size, "-");
 				}
 			}
 		}
@@ -209,33 +208,37 @@ inline void StrobeAPI::generateDiffBar(char * const dst, int size, DifferenceTyp
 			if (type == 2)
 			{
 				if (((_barCounter - 11) * 11) >= diff / 2)
-					snprintf(dst, size, "%s%s", dst, "-");
+					strConcat(dst, size, "-");
 				else
-					snprintf(dst, size, "%s%s", dst, "=");
+					strConcat(dst, size, "=");
 			}
 			else
 			{
 				if (Neg)
 				{
-					snprintf(dst, size, "%s%s", dst, "-");
+					strConcat(dst, size, "-");
 				}
 				else
 				{
 					if (((_barCounter - 11) * 11) >= diff)
-						snprintf(dst, size, "%s%s", dst, "-");
+						strConcat(dst, size, "-");
 					else
-						snprintf(dst, size, "%s%s", dst, "=");
+						strConcat(dst, size, "=");
 				}
 			}
 		}
 	}
 	if (type == 2)
 	{
-		snprintf(dst, size, "%s] * %d / 200", dst, diff);
+		char buf[32];
+		snprintf(buf, sizeof(buf), "] * %d / 200", diff);
+		strConcat(dst, size, buf);
 	}
 	else
 	{
-		snprintf(dst, size, "%s] * %d%%", dst, (Neg ? -diff : diff));
+		char buf[32];
+		snprintf(buf, sizeof(buf), "] * %d%%", (Neg ? -diff : diff));
+		strConcat(dst, size, buf);
 	}
 }
 
@@ -463,7 +466,6 @@ inline void StrobeAPI::generateDebugInformation(void)
 	generateDiffBar(diffBarN, sizeof(diffBarN), NegativeDifference);
 	generateDiffBar(diffBarT, sizeof(diffBarT), TotalDifference);
 
-	// Fix print into itself later!
 	if (!strlen(modeDescription) && strobeMode < 10)
 	{
 		if (strobeMode != 0)
@@ -471,9 +473,9 @@ inline void StrobeAPI::generateDebugInformation(void)
 			snprintf(modeDescription, sizeof(modeDescription), (strobeMode > 0 ? "%d [RENDER" : "%d [BLACK"), strobeMode);
 			for (int k = 1; k <= abs(strobeMode); ++k)
 			{
-				snprintf(modeDescription, sizeof(modeDescription), "%s%s", modeDescription, (strobeMode > 0 ? " - BLACK" : " - RENDER"));
+				strConcat(modeDescription, sizeof(modeDescription), (strobeMode > 0 ? " - BLACK" : " - RENDER"));
 			}
-			snprintf(modeDescription, sizeof(modeDescription), "%s]", modeDescription);
+			strConcat(modeDescription, sizeof(modeDescription), "]");
 		}
 		else
 		{
@@ -586,4 +588,23 @@ inline bool StrobeAPI::processFrame(void)
 
 		return false;
 	}
+}
+
+inline void StrobeAPI::strConcat(char * const dst, int size, const char * const src)
+{
+	if (!strlen(src))
+		return;
+
+	if (sizeof(char) * (strlen(dst) + strlen(src)) > size)
+		return;
+
+	char* const buf = (char*)malloc(size);
+
+	snprintf(buf, size, "%s%s", dst, src);
+	if (buf == nullptr)
+		return;
+
+	snprintf(dst, size, "%s", buf);
+
+	free(buf);
 }
